@@ -1024,6 +1024,7 @@ body:hover .nav{opacity:.55}
     var cells = ov.querySelectorAll('.ovcell');
     for(var i=0;i<cells.length;i++){
       var w = cells[i].clientWidth, sl = cells[i].querySelector('.slide');
+      cells[i].style.height = (w*9/16) + 'px';
       if(sl) sl.style.transform = 'scale(' + (w/1280) + ')';
     }
   }
