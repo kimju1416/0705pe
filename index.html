@@ -993,7 +993,7 @@ body:hover .nav{opacity:.55}
     t.innerHTML=h; t.classList.add('show');
     clearTimeout(_toastT); _toastT=setTimeout(function(){ t.classList.remove('show'); }, 5600);
   }
-  function syncFsBtn(){ var b=document.getElementById('fsbtn'); if(b){ b.innerHTML='⛶<span class="fslabel"> 전체화면'+(isFs()?' 해제':'')+'</span>'; } }
+  function syncFsBtn(){ var b=document.getElementById('fsbtn'); if(b){ b.innerHTML = isFs()?'⛶':'⛶<span class="fslabel"> 전체화면</span>'; b.title = isFs()?'전체화면 해제':'전체화면'; } }
   function onFsChange(){ syncFsBtn(); fit(); setTimeout(function(){ fit(); if(ov.classList.contains('show')) fitOv(); }, 300); }
 
   // 16:9 스케일 — 화면에 가득
