@@ -2,7 +2,10 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>바이브코딩이 설계하는 넥스트 체육수업 | @kimju.zip</title>
 <meta property="og:title" content="바이브코딩이 설계하는 넥스트 체육수업">
 <meta property="og:description" content="코딩을 몰라도 선생님의 아이디어가 앱이 되는 시대 · 2026 학교체육축전 · @kimju.zip">
@@ -17,7 +20,7 @@
   --W:1280px; --H:720px;
 }
 *{margin:0;padding:0;box-sizing:border-box}
-html,body{height:100%;overflow:hidden;background:#0F1923;font-family:"Pretendard Variable",Pretendard,-apple-system,sans-serif;-webkit-font-smoothing:antialiased}
+html,body{height:100%;overflow:hidden;background:#0F1923;touch-action:manipulation;font-family:"Pretendard Variable",Pretendard,-apple-system,sans-serif;-webkit-font-smoothing:antialiased}
 body{display:flex;align-items:center;justify-content:center}
 
 /* ===== 스케일 무대 ===== */
@@ -104,6 +107,12 @@ body:hover .nav{opacity:.55}
 @keyframes ovIn{from{opacity:0;transform:scale(1.35);filter:blur(14px)}to{opacity:1;transform:scale(1);filter:blur(0)}}
 #count{cursor:pointer}
 #ovbtn{position:fixed;right:16px;top:13px;font-size:13px;font-weight:700;color:var(--body);background:rgba(30,45,61,.82);border:1px solid var(--line);padding:7px 14px;border-radius:20px;cursor:pointer;pointer-events:auto;z-index:61;backdrop-filter:blur(8px);transition:.18s;user-select:none}
+#fsbtn{position:fixed;left:16px;top:calc(13px + env(safe-area-inset-top));font-size:13px;font-weight:700;color:var(--body);background:rgba(30,45,61,.82);border:1px solid var(--line);padding:7px 14px;border-radius:20px;cursor:pointer;pointer-events:auto;z-index:61;backdrop-filter:blur(8px);transition:.18s;user-select:none;display:flex;align-items:center;gap:5px}
+#fsbtn:hover{border-color:var(--amber);color:var(--ink)}
+#fsbtn:active{transform:scale(.95)}
+#toast{position:fixed;left:50%;bottom:calc(70px + env(safe-area-inset-bottom));transform:translateX(-50%) translateY(12px);max-width:min(92vw,470px);background:rgba(15,25,35,.97);border:1px solid var(--line);color:var(--body);font-size:13px;line-height:1.55;font-weight:600;padding:13px 18px;border-radius:14px;backdrop-filter:blur(8px);box-shadow:0 12px 34px rgba(0,0,0,.55);z-index:120;opacity:0;visibility:hidden;transition:opacity .3s,transform .3s;text-align:center;pointer-events:none}
+#toast.show{opacity:1;visibility:visible;transform:translateX(-50%) translateY(0)}
+#toast b{color:var(--amber);font-weight:800}
 #ovbtn:hover{background:var(--orange);color:#fff;border-color:var(--orange)}
 .intro-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
 
@@ -174,6 +183,8 @@ body:hover .nav{opacity:.55}
 @media (max-width:640px){
   .nav{width:40px;height:40px;font-size:18px}
   #ovbtn{padding:6px 11px;font-size:12px}
+  #fsbtn{padding:6px 10px;font-size:14px;left:max(10px,env(safe-area-inset-left));top:max(10px,env(safe-area-inset-top))}
+  #fsbtn .fslabel{display:none}
   #count{bottom:max(10px,env(safe-area-inset-bottom));font-size:12px;padding:4px 11px}
   #hint{bottom:46px;font-size:11px;padding:0 16px;text-align:center;width:100%}
   #ov{grid-template-columns:repeat(auto-fill,minmax(150px,1fr))!important}
@@ -904,6 +915,7 @@ body:hover .nav{opacity:.55}
   <div id="next" class="nav" onclick="go(1)">›</div>
   <div id="count"><b id="cur">1</b> / <span id="tot">37</span></div>
 </div>
+<div id="fsbtn" title="전체화면 (F)">⛶<span class="fslabel"> 전체화면</span></div>
 <div id="ovbtn">⊞ 목차</div>
 <div id="rotate">📱 <b>가로로 돌리면</b> 더 크게 볼 수 있어요</div>
 <div id="hint">← → 또는 스페이스로 이동 · 클릭 · 스와이프 · <b style="color:var(--amber)">O</b> 목차</div>
@@ -949,20 +961,40 @@ body:hover .nav{opacity:.55}
     else if(isO){ e.preventDefault(); openOv(); }
   });
   // 클릭(좌/우 절반) — 단, 네비/카운트 영역 제외
-  stage.addEventListener('click', function(e){
+  stage.addEventListener('click', function(e){ if(window.visualViewport && window.visualViewport.scale > 1.02) return;
     var r = stage.getBoundingClientRect();
     if((e.clientX - r.left) < r.width*0.5) go(-1); else go(1);
   });
   // 스와이프
   var sx=0, sy=0;
   document.addEventListener('touchstart', function(e){ sx=e.touches[0].clientX; sy=e.touches[0].clientY; }, {passive:true});
-  document.addEventListener('touchend', function(e){
+  document.addEventListener('touchend', function(e){ if(window.visualViewport && window.visualViewport.scale > 1.02) return;
     var dx=e.changedTouches[0].clientX-sx, dy=e.changedTouches[0].clientY-sy;
     if(Math.abs(dx)>50 && Math.abs(dx)>Math.abs(dy)){ go(dx<0?1:-1); }
   }, {passive:true});
 
   // 전체화면
-  function toggleFS(){ if(!document.fullscreenElement){ document.documentElement.requestFullscreen&&document.documentElement.requestFullscreen(); } else { document.exitFullscreen&&document.exitFullscreen(); } }
+  function isFs(){ return !!(document.fullscreenElement||document.webkitFullscreenElement); }
+  function toggleFS(){
+    var d=document.documentElement;
+    if(!isFs()){
+      if(d.requestFullscreen){ d.requestFullscreen(); }
+      else if(d.webkitRequestFullscreen){ d.webkitRequestFullscreen(); }
+      else { showToast('이 브라우저는 전체화면 버튼을 지원하지 않아요.<br><b>공유 → 홈 화면에 추가</b> 후 실행하면 전체화면으로 볼 수 있어요.<br>(또는 두 손가락으로 확대·축소)'); return; }
+    } else {
+      if(document.exitFullscreen){ document.exitFullscreen(); }
+      else if(document.webkitExitFullscreen){ document.webkitExitFullscreen(); }
+    }
+  }
+  var _toastT;
+  function showToast(h){
+    var t=document.getElementById('toast');
+    if(!t){ t=document.createElement('div'); t.id='toast'; document.body.appendChild(t); }
+    t.innerHTML=h; t.classList.add('show');
+    clearTimeout(_toastT); _toastT=setTimeout(function(){ t.classList.remove('show'); }, 5600);
+  }
+  function syncFsBtn(){ var b=document.getElementById('fsbtn'); if(b){ b.innerHTML='⛶<span class="fslabel"> 전체화면'+(isFs()?' 해제':'')+'</span>'; } }
+  function onFsChange(){ syncFsBtn(); fit(); setTimeout(function(){ fit(); if(ov.classList.contains('show')) fitOv(); }, 300); }
 
   // 16:9 스케일 — 화면에 가득
   function fit(){
@@ -1021,6 +1053,15 @@ body:hover .nav{opacity:.55}
   ov.addEventListener('click', function(e){ if(e.target===ov) closeOv(); });
 
   window.addEventListener('resize', function(){ fit(); if(ov.classList.contains('show')) fitOv(); });
+  (function(){
+    var b=document.getElementById('fsbtn');
+    if(b){ b.addEventListener('click', toggleFS); }
+    document.addEventListener('fullscreenchange', onFsChange);
+    document.addEventListener('webkitfullscreenchange', onFsChange);
+    window.addEventListener('orientationchange', function(){ setTimeout(function(){ fit(); if(ov.classList.contains('show')) fitOv(); }, 250); });
+    if(window.visualViewport){ window.visualViewport.addEventListener('resize', function(){ fit(); }); }
+    syncFsBtn();
+  })();
   fit();
 
   // 해시 시작 위치
